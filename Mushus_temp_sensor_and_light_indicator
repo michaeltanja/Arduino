@@ -1,0 +1,91 @@
+    /*crested geckos can tolerate drops to the 70s in the summer, and 60s in the winter.*/
+    /*for more info, http://www.reptilesmagazine.com/Care-Sheets/Lizards/Crested-Gecko/ */
+
+    /* shifted the entire temperature 2 deg F higher, to account for theorized increased voltage when disconnected to the computer*/
+    /*blinks*/
+
+    
+    //TMP36 Pin Variables
+    int sensorPin = 0; //the analog pin the TMP36's Vout (sense) pin is connected to
+                            //the resolution is 10 mV / degree centigrade with a
+    int lowlow =  2;
+    int low = 3;
+    int green = 4;
+    int high = 5;
+    int highhigh = 6; 
+    //500 mV offset to allow for negative temperatures
+     
+    /*
+     * setup() - this function runs once when you turn your Arduino on
+     * We initialize the serial connection with the computer
+     */
+    void setup()
+    {
+      pinMode(lowlow,OUTPUT);
+      pinMode(low,OUTPUT);
+      pinMode(green,OUTPUT);
+      pinMode(high,OUTPUT);
+      pinMode(highhigh,OUTPUT);
+      Serial.begin(9600);  //Start the serial connection with the computer
+                           //to view the result open the serial monitor 
+     /* Serial.println("CLEARDATA");//clears up any data from other projects
+      Serial.println("LABEL,TIME,TEMP");
+      Serial.println("RESETTIMER");*/
+    }
+     
+    void loop()                     // run over and over again
+    {
+     //getting the voltage reading from the temperature sensor
+     int reading = analogRead(sensorPin);  
+     
+     // converting that reading to voltage, for 3.3v arduino use 3.3
+     float voltage = reading * 5.0;
+     voltage /= 1024.0; 
+     
+     // print out the voltage
+    // Serial.print(voltage); Serial.println(" volts");
+     
+     // now print out the temperature
+     float temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree wit 500 mV offset
+                                                   //to degrees ((voltage - 500mV) times 100)
+     //Serial.print(temperatureC); Serial.println(" degrees C");
+     
+     // now convert to Fahrenheit
+     float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0 +6.64 +7.34;//+6.64 degF calibration and then +7.34
+     Serial.print(temperatureF); Serial.println(" degrees F");
+     if (temperatureF<70){//(voltage<0.659){ //0.659
+      digitalWrite(lowlow,HIGH);
+     }
+     else{
+      digitalWrite(lowlow,LOW);
+     }
+     if (temperatureF>70.01 && temperatureF<72){//(voltage>0.66 && voltage<0.68){//0.66
+      digitalWrite(low,HIGH);
+     }
+     else{
+      digitalWrite(low,LOW);
+     }
+      if (temperatureF>72.01 && temperatureF<77){//(voltage>0.689 && voltage<0.71) {
+        digitalWrite(green,HIGH);
+      }
+        else{
+          digitalWrite(green,LOW);
+        }
+     if (temperatureF>77.01 && temperatureF<79){ //(voltage>0.719 && voltage<0.74){
+      digitalWrite(high,HIGH);
+     }
+     else{
+      digitalWrite(high,LOW);
+     }
+     if (temperatureF>79.01){//(voltage>0.749){ **doesnt work remotely unless i make this all the way to 300....???? it blinks...
+      digitalWrite(highhigh,HIGH); 
+     }
+      else{
+        digitalWrite(highhigh,LOW);
+      }
+     /*Serial.print("DATA,TIME,TEMP");
+     Serial.print(temperatureF);*/
+     
+     
+     delay(1000);                                //waiting a second
+    }
