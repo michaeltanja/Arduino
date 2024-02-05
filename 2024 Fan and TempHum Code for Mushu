@@ -1,1 +1,59 @@
+//combining motor code and temphum code
 
+//Temperature and Humidity DHT11 Set Up
+#include <dht11.h>
+#define DHT11PIN 4
+
+dht11 DHT11;
+
+//Motor Code Set Up for Fan/s
+int pwmPin    = 12;                         //assigning pwm to pin 12
+int pot       = A0;                         //assigning analog input A0 to variable pot
+int c1        = 0;                          //declares variable c1
+int c2        = 0;                          //declares variable c2
+
+void setup() {
+  //Motor Pin Set Up
+  pinMode(pwmPin, OUTPUT);
+  pinMode(pot, INPUT);
+
+  //Time Log for DHT11
+  Serial.begin(9600);
+
+}
+
+void loop() {
+
+  //initiate DHT11 reading
+  Serial.println();
+
+  int chk = DHT11.read(DHT11PIN);
+
+  Serial.print("Humidity (%): ");
+  Serial.println((float)DHT11.humidity, 2);
+
+  Serial.print("Temperature  (C): ");
+  Serial.println((float)DHT11.temperature, 2);
+
+  //Read potentiometer for Motor
+  c2= analogRead(pot); 
+
+  c1= 1024-c2;   
+  //Turn Motor ON
+  if(DHT11.humidity>53){
+    // subtracts c2 from 1000 ans saves the result in c1
+
+    digitalWrite(pwmPin, HIGH); 
+
+    delayMicroseconds(c1);   
+
+  }
+  
+  //Turn Motor OFF
+  if(DHT11.humidity<53){
+    digitalWrite(pwmPin,LOW);
+    delayMicroseconds(c1);   
+  }
+  delay(5000);
+  //restart loop
+}
